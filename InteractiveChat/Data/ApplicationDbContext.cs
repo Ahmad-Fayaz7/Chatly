@@ -1,21 +1,25 @@
 ﻿using InteractiveChat.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveChat.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
         }
-        public DbSet<User> users { get; set; }
+        //public DbSet<User> users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<User>().ToTable("user");
+            var user = new IdentityRole("user");
+            user.NormalizedName = "user";
+            modelBuilder.Entity<IdentityRole>().HasData(user);
+            //modelBuilder.Entity<User>().ToTable("user");
         }
     }
 }
