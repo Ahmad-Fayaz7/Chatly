@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -15,24 +19,26 @@
         <div class="container-fluid">
             <div class="row flex-nowrap">
                 <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light">
-                    <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-black h-75">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-black h-75">
                         <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-secondary text-decoration-none">
                             <span class="fs-5 d-none d-sm-inline">Menu</span>
                         </a>
-                        <div >
+                       @*  <div >
                             <img src="~/images/users/user1.jpg" class="profile-pic"/>
                             <div class="d-block mx-3">
                                 <span>Ana Suarez</span> <br />
                                 <span>Description</span>
                             </div>
-                        </div>
+                        </div> *@
                         <hr class="menu-hr"/>
                         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
-                            <li class="nav-item">
+                           @*  <li class="nav-item">
                                 <a href="#" class="nav-link d-flex justify-content-center px-0 text-secondary">
                                     <i class="bi bi-house align_middle"></i> <br /><span class="ms-1 d-none d-sm-inline">Home</span>
                                 </a>
-                            </li>
+                            </li> *@
                           @*   <li>
                                 <a href="#submenu1" data-bs-toggle="collapse" class="nav-link px-0 align-middle">
                                     <i class="fs-4 bi-speedometer2"></i> <span class="ms-1 d-none d-sm-inline">Dashboard</span>
@@ -90,8 +96,7 @@
                             </li>
                         </ul>
                         <hr>
-                        <partial name="_LoginPartial" />
-                      
+                   
                         <div class="dropdown">
                             <a href="#" class="d-flex align-items-center text-primary text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="https://github.com/mdo.png" alt="hugenerd" width="30" height="30" class="rounded-circle">
@@ -108,6 +113,11 @@
                             </ul>
                         </div>
                     </div>
+                        <partial name="_LoginPartial" />
+                    }
+                    else{
+                        <partial name="_LoginPartial" />
+                    }
                 </div>
                 <div class="col py-3 vh-100 overflow-auto">
                     <main role="main" class="pb-3">

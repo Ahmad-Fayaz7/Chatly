@@ -11,15 +11,15 @@ namespace InteractiveChat.Data
         {
 
         }
-        //public DbSet<User> users { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            var user = new IdentityRole("user");
-            user.NormalizedName = "user";
-            modelBuilder.Entity<IdentityRole>().HasData(user);
-            //modelBuilder.Entity<User>().ToTable("user");
+            //var user = new IdentityRole("user");
+            //user.NormalizedName = "user";
+            //modelBuilder.Entity<IdentityRole>().HasData(user);
+            //modelBuilder.Entity<ApplicationUser>().ToTable("user");
         }
     }
 }
