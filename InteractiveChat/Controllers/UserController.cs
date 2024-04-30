@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using InteractiveChat.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace InteractiveChat.Controllers
 {
@@ -16,6 +17,14 @@ namespace InteractiveChat.Controllers
         }
         public IActionResult Edit()
         {
+            return View();
+        }
+        public IActionResult Profile()
+        {
+            var username = HttpContext.User.Identity.Name;
+            Console.WriteLine(username);
+
+            ViewData["Username"] = username;
             return View();
         }
     }

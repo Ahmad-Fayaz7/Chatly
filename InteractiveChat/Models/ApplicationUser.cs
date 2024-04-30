@@ -6,6 +6,7 @@ namespace InteractiveChat.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string ProfilePicUrl { get; set; }
         public DateTime CreationTime { get; set; }
     }
 }

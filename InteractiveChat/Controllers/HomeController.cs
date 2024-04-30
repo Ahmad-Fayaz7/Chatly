@@ -1,20 +1,28 @@
 using InteractiveChat.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 using System.Diagnostics;
+using System.Security.Claims;
+
 
 namespace InteractiveChat.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        
 
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
+            
         }
-
+        [Authorize]
         public IActionResult Index()
         {
+            
             return View();
         }
 

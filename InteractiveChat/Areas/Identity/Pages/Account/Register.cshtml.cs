@@ -31,6 +31,7 @@ namespace InteractiveChat.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         //private readonly IEmailSender _emailSender;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
@@ -38,7 +39,8 @@ namespace InteractiveChat.Areas.Identity.Pages.Account
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             //IEmailSender emailSender,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -47,6 +49,7 @@ namespace InteractiveChat.Areas.Identity.Pages.Account
             _logger = logger;
             //_emailSender = emailSender;
             _roleManager = roleManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
@@ -132,6 +135,7 @@ namespace InteractiveChat.Areas.Identity.Pages.Account
                 user.LastName = Input.LastName;
                 user.Email = Input.Email;
                 user.CreationTime = DateTime.Now;
+                user.ProfilePicUrl = SaveProfilePicAsync();
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
                 if (result.Succeeded)
@@ -169,6 +173,34 @@ namespace InteractiveChat.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
+        }
+
+        private string SaveProfilePicAsync()
+        {
+            var profilePicsDirectory = Path.Combine(_webHostEnvironment.WebRootPath, @"images\users");
+            var profilePicFile = Request.Form.Files["ProfilePicUrl"];
+            string uniqueFileName = null;
+            if (profilePicFile != null && profilePicFile.Length > 0)
+            {
+                // Ensure profilePicsDicrectory exists
+                if (!Directory.Exists(profilePicsDirectory))
+                {
+                    Directory.CreateDirectory(profilePicsDirectory);
+                }
+
+                // Generate unique file name
+                uniqueFileName = $"{Guid.NewGuid().ToString()}_{profilePicFile.FileName}";
+
+                // Save file to profile pictures directory
+                var filePath = Path.Combine(profilePicsDirectory, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                     profilePicFile.CopyTo(fileStream);
+                }
+
+            }
+            // Save file path to database/users table
+            return @"\images\users\" + uniqueFileName;
         }
 
         private ApplicationUser CreateUser()
