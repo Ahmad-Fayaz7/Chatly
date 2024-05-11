@@ -23,13 +23,14 @@
                         <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-secondary text-decoration-none">
                             <span class="fs-5 d-none d-sm-inline">Menu</span>
                         </a>
-                    <div>
+                   @*  <div>
                         <img src="\images\users\user1.jpg" class="profile-pic" />
                         <div class="d-block mx-3">
                             <span>Andrea Lopez</span> <br />
                             <span>Description</span>
                         </div>
-                    </div>
+                    </div> *@
+                    @await Component.InvokeAsync("Profile")
                         <hr class="menu-hr" />
                         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                             @*  <li class="nav-item">
