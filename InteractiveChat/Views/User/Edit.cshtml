@@ -1,9 +1,8 @@
-﻿@model ApplicationUser
+﻿@model InteractiveChat.DTOs.ApplicationUserDTO
 
 
 <form class="p-2" method="post" enctype="multipart/form-data">
     <input asp-for="@Model.ProfilePicUrl" hidden/>
-    <input asp-for="@Model.Id" hidden/>
         <div class="d-flex flex-column justify-content-center align-items-center">
             <img src="@Model.ProfilePicUrl" class="profile-pic" />
         </div>
@@ -34,6 +33,7 @@
             <textarea for="Status" rows="3" class="form-control">your status</textarea>
         </div> *@
         <button type="submit" asp-controller="User" asp-action="Edit" class="btn btn-primary my-2">Submit</button>
+        <button type="submit" asp-controller="Home" asp-action="Index" class="btn btn-primary my-2">Cancelar</button>
     </form>
 
 

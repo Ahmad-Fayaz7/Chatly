@@ -1,8 +1,8 @@
 using InteractiveChat.Data;
+using InteractiveChat.MappingProfiles;
 using InteractiveChat.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Net.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -22,6 +22,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 
     options.LoginPath = "/Identity/Account/Login";
 });
+
+builder.Services.AddAutoMapper(typeof(InteractiveChatProfile));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,0 +1,28 @@
+﻿@using InteractiveChat.Models.ViewModels
+
+
+<form class="d-flex" id="searchForm" method="post">
+    <input class="form-control me-sm-2" type="search" placeholder="Search" id="searchInput" name="searchTerm">
+    <button class="btn btn-secondary my-2 my-sm-0" type="submit" asp-controller="Friendship" asp-action="Index">Search</button>
+</form>
+
+<ul class="list-group mt-4" id="searchResults">
+    @if (Model != null)
+    {
+        foreach (var item in Model)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <img src=@item.User.ProfilePicUrl class="small-images"/>
+                @item.User.FirstName @item.User.LastName
+                @if(@item.RelationshipStatus == RelationshipStatus.None) {
+                <span class="badge bg-primary rounded-pill">Add +</span>
+                }
+
+            </li>
+        }
+    }
+    else
+    {
+        <li class="list-group-item">No results.</li>
+    }
+</ul>
