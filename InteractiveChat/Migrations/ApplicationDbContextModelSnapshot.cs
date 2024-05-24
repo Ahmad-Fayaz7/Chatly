@@ -76,7 +76,6 @@ namespace InteractiveChat.Migrations
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("ProfilePicUrl")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("SecurityStamp")
@@ -109,40 +108,34 @@ namespace InteractiveChat.Migrations
                     b.Property<string>("ReceiverId")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("ApplicationUserId1")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("InvitationDate")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("SenderId", "ReceiverId");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("ReceiverId");
 
-                    b.HasIndex("ApplicationUserId1");
-
-                    b.ToTable("FriendRequest");
+                    b.ToTable("FriendRequests", (string)null);
                 });
 
             modelBuilder.Entity("InteractiveChat.Models.Friendship", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("varchar(255)")
+                        .HasColumnOrder(0);
 
                     b.Property<string>("FriendId")
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("varchar(255)")
+                        .HasColumnOrder(1);
 
-                    b.Property<string>("ApplicationUserId")
-                        .HasColumnType("varchar(255)");
+                    b.Property<DateTime>("FriendshipDate")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("UserId", "FriendId");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("FriendId");
 
-                    b.ToTable("Friendship");
+                    b.ToTable("Friendships", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -279,20 +272,40 @@ namespace InteractiveChat.Migrations
 
             modelBuilder.Entity("InteractiveChat.Models.FriendRequest", b =>
                 {
-                    b.HasOne("InteractiveChat.Models.ApplicationUser", null)
+                    b.HasOne("InteractiveChat.Models.ApplicationUser", "ReceiverUser")
                         .WithMany("ReceivedFriendRequests")
-                        .HasForeignKey("ApplicationUserId");
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.HasOne("InteractiveChat.Models.ApplicationUser", null)
+                    b.HasOne("InteractiveChat.Models.ApplicationUser", "SenderUser")
                         .WithMany("SentFriendRequests")
-                        .HasForeignKey("ApplicationUserId1");
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ReceiverUser");
+
+                    b.Navigation("SenderUser");
                 });
 
             modelBuilder.Entity("InteractiveChat.Models.Friendship", b =>
                 {
-                    b.HasOne("InteractiveChat.Models.ApplicationUser", null)
-                        .WithMany("Friends")
-                        .HasForeignKey("ApplicationUserId");
+                    b.HasOne("InteractiveChat.Models.ApplicationUser", "Friend")
+                        .WithMany()
+                        .HasForeignKey("FriendId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InteractiveChat.Models.ApplicationUser", "User")
+                        .WithMany("Friendships")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Friend");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -348,7 +361,7 @@ namespace InteractiveChat.Migrations
 
             modelBuilder.Entity("InteractiveChat.Models.ApplicationUser", b =>
                 {
-                    b.Navigation("Friends");
+                    b.Navigation("Friendships");
 
                     b.Navigation("ReceivedFriendRequests");
 

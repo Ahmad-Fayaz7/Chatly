@@ -1,6 +1,10 @@
 using InteractiveChat.Data;
+using InteractiveChat.Data.Repository;
+using InteractiveChat.Data.Repository.IRepository;
 using InteractiveChat.MappingProfiles;
 using InteractiveChat.Models;
+using InteractiveChat.Services;
+using InteractiveChat.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +28,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddAutoMapper(typeof(InteractiveChatProfile));
+builder.Services.AddScoped<IFriendshipService, FriendshipService>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+builder.Services.AddScoped<IFriendRequestRepository, FriendRequestRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -5,15 +5,23 @@ namespace InteractiveChat.Data.Repository
 {
     public class ApplicationUserRepository : Repository<ApplicationUser>, IApplicationUserRepository
     {
-        private ApplicationDbContext _context;
-        public ApplicationUserRepository(ApplicationDbContext context) : base(context)
+        private ApplicationDbContext _dbContext;
+
+        public ApplicationUserRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-            _context = context;
+            _dbContext = dbContext;
+
+        }
+
+        public ApplicationUser GetByUsername(string username)
+        {
+            var user = _dbContext.ApplicationUsers.FirstOrDefault(u => u.UserName == username);
+            return user;
         }
 
         public void Update(ApplicationUser obj)
         {
-            _context.ApplicationUsers.Update(obj);
+            _dbContext.ApplicationUsers.Update(obj);
         }
     }
 }

@@ -1,15 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace InteractiveChat.Models
+﻿namespace InteractiveChat.Models
 {
     public class Friendship
     {
-        [Required]
+
         public string UserId { get; set; }
 
-        [Required]
+        public ApplicationUser User { get; set; }
+
+
         public string FriendId { get; set; }
 
+        public ApplicationUser Friend { get; set; }
+        public DateTime FriendshipDate { get; set; }
     }
 
 

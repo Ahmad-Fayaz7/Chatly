@@ -6,13 +6,21 @@ namespace InteractiveChat.Data.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _dbContext;
         // DbSet represents a table of database
         internal DbSet<T> dbSet;
-        public Repository(ApplicationDbContext context)
+        public Repository(ApplicationDbContext dbContext)
         {
-            _context = context;
-            this.dbSet = _context.Set<T>(); // Takes the collection of type T and saves it in dbSet, then we can do crud operations on that collection
+            _dbContext = dbContext;
+            this.dbSet = _dbContext.Set<T>(); // Takes the collection of type T and saves it in dbSet, then we can do crud operations on that collection
+        }
+
+
+        public void Add(T entity)
+        {
+            dbSet.Add(entity);
+            _dbContext.SaveChanges();
+
         }
 
         public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)

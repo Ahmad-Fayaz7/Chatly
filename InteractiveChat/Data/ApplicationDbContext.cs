@@ -11,18 +11,17 @@ namespace InteractiveChat.Data
 
         }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<FriendRequest> FriendRequests { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<FriendRequest>()
-        .HasKey(fr => new { fr.SenderId, fr.ReceiverId });
-            modelBuilder.Entity<Friendship>()
-        .HasKey(fr => new { fr.UserId, fr.FriendId });
-            //var user = new IdentityRole("user");
-            //user.NormalizedName = "user";
-            //modelBuilder.Entity<IdentityRole>().HasData(user);
-            //modelBuilder.Entity<ApplicationUser>().ToTable("user");
+
+            // Configure the ApplicationUser entity
+            modelBuilder.ApplyConfiguration(new ApplicationUserConfiguration());
+            modelBuilder.ApplyConfiguration(new FriendRequestConfiguration());
+            modelBuilder.ApplyConfiguration(new FriendshipConfiguration());
         }
     }
 }

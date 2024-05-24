@@ -1,18 +1,21 @@
-﻿using InteractiveChat.Models.ViewModels;
-using System.ComponentModel.DataAnnotations;
-
-namespace InteractiveChat.Models
+﻿namespace InteractiveChat.Models
 {
+    //[Table("FriendRequest")]
     public class FriendRequest
     {
 
-        [Required]
         public string SenderId { get; set; }
 
-        [Required]
+
+        public ApplicationUser SenderUser { get; set; }
+
+
         public string ReceiverId { get; set; }
-        [Required]
-        public FriendRequestStatus Status { get; set; }
+
+
+        public ApplicationUser ReceiverUser { get; set; }
+
+        public DateTime InvitationDate { get; set; }
     }
 
 }
