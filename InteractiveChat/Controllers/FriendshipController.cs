@@ -33,12 +33,12 @@ public class FriendshipController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> SendFriendRequest(string ReceiverUsername)
+    public async Task<IActionResult> SendFriendRequest(string username)
     {
         // Get the sender's username
         var senderUsername = _userManager.GetUserName(User);
         // Call the service method to send the friend request
-        var result = await _friendshipService.SendFriendRequest(senderUsername, ReceiverUsername);
+        var result = await _friendshipService.SendFriendRequest(senderUsername, username);
 
         if (result.IsSuccess) return Ok(new { success = true, message = "Friend request sent successfully." });
 
@@ -46,12 +46,19 @@ public class FriendshipController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CancelFriendRequest(string ReceiverUsername)
+    public async Task<IActionResult> CancelFriendRequest(string username)
     {
-        Console.WriteLine("The username is: " + ReceiverUsername);
         var loggedInUser = await _userManager.GetUserAsync(User);
         // Call the service method to Cancel the friend request
-        var result = _friendshipService.CancelFriendRequest(loggedInUser ,ReceiverUsername);
+        var result = _friendshipService.CancelFriendRequest(loggedInUser ,username);
         return Ok(new { success = true, message = "Friend request canceled successfully." });
+    }
+    [HttpPost]
+    public async Task<IActionResult> RejectFriendRequest(string username)
+    {
+        var loggedInUser = await _userManager.GetUserAsync(User);
+        // Call the service method to Cancel the friend request
+        var result = _friendshipService.RejectFriendRequest(loggedInUser ,username);
+        return Ok(new { success = true, message = "Friend request rejected successfully." });
     }
 }

@@ -10,7 +10,7 @@
         foreach (var item in Model)
         {
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <img src=@item.User.ProfilePicUrl class="small-images"/>
+                <img src=@item.User.ProfilePicUrl class="small-images" alt="user profile pic"/>
                 @item.User.FirstName @item.User.LastName
                 @if (item.RelationshipStatus == RelationshipStatus.None)
                 {
@@ -23,7 +23,7 @@
                 else if (item.RelationshipStatus == RelationshipStatus.ReceivedRequest)
                 {
                     <button class="btn btn-primary friendActionButton" id="acceptRequestButton" data-username="@item.User.UserName">Accept</button>
-                    <button class="btn btn-primary friendActionButton" id="cancelRequestButton" data-username="@item.User.UserName">Cancel</button>
+                    <button class="btn btn-primary friendActionButton" id="rejectRequestButton" data-username="@item.User.UserName">Reject</button>
                 }
                 else if (item.RelationshipStatus == RelationshipStatus.Accepted)
                 {
@@ -44,11 +44,13 @@
     <script>
         $(document).ready(function () {
             $(".friendActionButton").click(function (e) {
-                var button = $(this); // Store the clicked button
-                var username = button.data("username"); // Get the username from the button's data attribute
-                var actionUrl = '';
-                var newButtonText = '';
-                var newButtonId = '';
+                e.preventDefault();
+                
+                const button = $(this); // Store the clicked button
+                const username = button.data("username"); // Get the username from the button's data attribute
+                let actionUrl = '';
+                let newButtonText = '';
+                let newButtonId = '';
 
                 // Determine the action based on the button's ID
                 if (button.attr("id") === 'addFriendButton') {
@@ -56,10 +58,6 @@
                     newButtonText = 'Cancel';
                     newButtonId = 'cancelRequestButton';
                 } else if (button.attr("id") === 'cancelRequestButton') {
-                    @*const acceptButton = button.nextElementSibling
-                    if (acceptButton) {
-                        acceptButton.remove();
-                     }*@
                     actionUrl = '@Url.Action("CancelFriendRequest", "Friendship")';
                     newButtonText = 'Add Friend';
                     newButtonId = 'addFriendButton';
@@ -67,21 +65,28 @@
                     actionUrl = '@Url.Action("AcceptFriendRequest", "Friendship")';
                     newButtonText = 'Unfriend';
                     newButtonId = 'unfriendButton';
+                } else if (button.attr("id") === 'rejectRequestButton') {
+                    actionUrl = '@Url.Action("RejectFriendRequest", "Friendship")';
+                    newButtonText = 'Add Friend';
+                    newButtonId = 'addFriendButton';
                 } else if (button.attr("id") === "unfriendButton") {
                     actionUrl = '@Url.Action("RemoveFriend", "Friendship")';
                     newButtonText = 'Add Friend';
                     newButtonId = 'addFriendButton';
                 }
 
-                e.preventDefault();
-
                 $.ajax({
                     url: actionUrl,
                     type: 'POST',
-                    data: { ReceiverUsername: username }, // Include the username in the data sent to the server
+                    data: { username: username }, // Include the username in the data sent to the server
                     success: function (response) {
                         // Handle success - update the UI
                         if (response.success) {
+                            // Check if the button is a reject button
+                            if (button.attr("id") === 'rejectRequestButton') {
+                                // Remove the accept button which is next to the reject button
+                                button.siblings("#acceptRequestButton").remove();
+                            }
                             button.fadeOut('fast', function () {
                                 button.text(newButtonText)
                                       .attr("id", newButtonId)

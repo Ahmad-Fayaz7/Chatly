@@ -54,7 +54,10 @@ public class FriendshipService : IFriendshipService
 
     public Result RejectFriendRequest(ApplicationUser loggedInUser, string username)
     {
-        throw new NotImplementedException();
+        var sender = _applicationUserRepository.GetByUsername(username);
+        var friendRequestToDelete = new FriendRequest { SenderId = sender.Id ,ReceiverId = loggedInUser.Id };
+        _friendRequestRepository.Delete(friendRequestToDelete);
+        return Result.Success();
     }
 
     public async Task<Result> SendFriendRequest(string senderUsername, string receiverUsername)
