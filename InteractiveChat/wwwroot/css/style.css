@@ -9,6 +9,7 @@
     border-radius: 50%;
     object-fit: cover;
 }
+
 .small-images {
     width: 45px;
     height: 45px;
@@ -16,6 +17,7 @@
     border-radius: 50%;
     object-fit: cover;
 }
+
 /*hr {
     margin: 1rem 0;
     color: red;
@@ -25,6 +27,6 @@
     width: inherit;
 }*/
 
-.menu-hr{
+.menu-hr {
     width: 100%;
 }

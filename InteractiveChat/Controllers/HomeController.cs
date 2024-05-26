@@ -1,42 +1,37 @@
+using System.Diagnostics;
 using InteractiveChat.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Core.Types;
-using System.Diagnostics;
-using System.Security.Claims;
 
+namespace InteractiveChat.Controllers;
 
-namespace InteractiveChat.Controllers
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly ILogger<HomeController> _logger;
+    private readonly UserManager<ApplicationUser> _userManager;
+
+
+    public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager)
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly UserManager<ApplicationUser> _userManager;
-        
+        _logger = logger;
+        _userManager = userManager;
+    }
 
-        public HomeController(ILogger<HomeController> logger, UserManager<ApplicationUser> userManager)
-        {
-            _logger = logger;
-            _userManager = userManager;
-            
-        }
-        [Authorize]
-        public IActionResult Index()
-        {
-            
-            return View();
-        }
+    [Authorize]
+    public IActionResult Index()
+    {
+        return View();
+    }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+    public IActionResult Privacy()
+    {
+        return View();
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

@@ -1,11 +1,13 @@
-﻿using InteractiveChat.Models.ViewModels;
+﻿using InteractiveChat.Models;
+using InteractiveChat.Models.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 
-namespace InteractiveChat.Services.IServices
+namespace InteractiveChat.Services.IServices;
+
+public interface IFriendshipService
 {
-    public interface IFriendshipService
-    {
-        Task<Result> SendFriendRequest(string senderUsername, string receiverUsername);
+    Task<Result> SendFriendRequest(string senderUsername, string receiverUsername);
 
-        List<SearchResultViewModel> SearchFriend(string? loggedInUserId, string searchTerm);
-    }
+    List<SearchResultViewModel> SearchFriend(ApplicationUser? loggedInUser, string searchTerm);
+    Result CancelFriendRequest(ApplicationUser loggedInUser, string username);
 }

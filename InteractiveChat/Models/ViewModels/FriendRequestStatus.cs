@@ -1,10 +1,9 @@
-﻿namespace InteractiveChat.Models.ViewModels
+﻿namespace InteractiveChat.Models.ViewModels;
+
+public enum FriendRequestStatus
 {
-    public enum FriendRequestStatus
-    {
-        Received,
-        Pending,
-        Accepted,
-        Rejected
-    }
+    Received,
+    Pending,
+    Accepted,
+    Rejected
 }

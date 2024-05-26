@@ -1,6 +1,4 @@
 ﻿@using InteractiveChat.Models.ViewModels
-
-
 <form class="d-flex" id="searchForm" method="post">
     <input class="form-control me-sm-2" type="search" placeholder="Search" id="searchInput" name="searchTerm">
     <button class="btn btn-secondary my-2 my-sm-0" type="submit" asp-controller="Friendship" asp-action="Index">Search</button>
@@ -14,18 +12,20 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <img src=@item.User.ProfilePicUrl class="small-images"/>
                 @item.User.FirstName @item.User.LastName
-                @if(item.RelationshipStatus == RelationshipStatus.None) {
+                @if (item.RelationshipStatus == RelationshipStatus.None)
+                {
                     <button class="btn btn-primary friendActionButton" id="addFriendButton" data-username="@item.User.UserName">Add Friend</button>
                 }
-                else if(@item.RelationshipStatus == RelationshipStatus.PendingRequest){
-                    <button class="btn btn-primary friendActionButton" id="cancelRequestButton" data-username="@item.User.UserName">Cancel</button>
-                } 
-                else if (@item.RelationshipStatus == RelationshipStatus.ReceivedRequest)
+                else if (item.RelationshipStatus == RelationshipStatus.PendingRequest)
                 {
                     <button class="btn btn-primary friendActionButton" id="cancelRequestButton" data-username="@item.User.UserName">Cancel</button>
-                    <button class="btn btn-primary friendActionButton" id="acceptRequestButton" data-username="@item.User.UserName">Accept</button>
                 }
-                else if (@item.RelationshipStatus == RelationshipStatus.Accepted)
+                else if (item.RelationshipStatus == RelationshipStatus.ReceivedRequest)
+                {
+                    <button class="btn btn-primary friendActionButton" id="acceptRequestButton" data-username="@item.User.UserName">Accept</button>
+                    <button class="btn btn-primary friendActionButton" id="cancelRequestButton" data-username="@item.User.UserName">Cancel</button>
+                }
+                else if (item.RelationshipStatus == RelationshipStatus.Accepted)
                 {
                     <button class="btn btn-primary friendActionButton" id="unfriendButton" data-username="@item.User.UserName">Unfriend</button>
                 }
@@ -38,8 +38,6 @@
         <li class="list-group-item">No results.</li>
     }
 </ul>
-
-
 
 
 @section Scripts {
@@ -58,6 +56,10 @@
                     newButtonText = 'Cancel';
                     newButtonId = 'cancelRequestButton';
                 } else if (button.attr("id") === 'cancelRequestButton') {
+                    @*const acceptButton = button.nextElementSibling
+                    if (acceptButton) {
+                        acceptButton.remove();
+                     }*@
                     actionUrl = '@Url.Action("CancelFriendRequest", "Friendship")';
                     newButtonText = 'Add Friend';
                     newButtonId = 'addFriendButton';
@@ -76,7 +78,7 @@
                 $.ajax({
                     url: actionUrl,
                     type: 'POST',
-                    data: { username: username }, // Include the username in the data sent to the server
+                    data: { ReceiverUsername: username }, // Include the username in the data sent to the server
                     success: function (response) {
                         // Handle success - update the UI
                         if (response.success) {

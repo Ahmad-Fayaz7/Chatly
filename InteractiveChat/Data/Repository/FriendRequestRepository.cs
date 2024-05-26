@@ -1,17 +1,19 @@
 ﻿using InteractiveChat.Data.Repository.IRepository;
 using InteractiveChat.Models;
 
-namespace InteractiveChat.Data.Repository
+namespace InteractiveChat.Data.Repository;
+
+public class FriendRequestRepository : Repository<FriendRequest>, IFriendRequestRepository
 {
-    public class FriendRequestRepository : Repository<FriendRequest>, IFriendRequestRepository
+    private ApplicationDbContext _dbContext;
+
+    public FriendRequestRepository(ApplicationDbContext dbContext) : base(dbContext)
     {
-        private ApplicationDbContext _dbContext;
-        public FriendRequestRepository(ApplicationDbContext dbContext) : base(dbContext)
-        {
+        _dbContext = dbContext;
+    }
 
-            _dbContext = dbContext;
-
-        }
-
+    public void Save()
+    {
+        _dbContext.SaveChanges();
     }
 }

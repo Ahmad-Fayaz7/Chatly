@@ -1,27 +1,25 @@
 ﻿using InteractiveChat.Data.Repository.IRepository;
 using InteractiveChat.Models;
 
-namespace InteractiveChat.Data.Repository
+namespace InteractiveChat.Data.Repository;
+
+public class ApplicationUserRepository : Repository<ApplicationUser>, IApplicationUserRepository
 {
-    public class ApplicationUserRepository : Repository<ApplicationUser>, IApplicationUserRepository
+    private readonly ApplicationDbContext _dbContext;
+
+    public ApplicationUserRepository(ApplicationDbContext dbContext) : base(dbContext)
     {
-        private ApplicationDbContext _dbContext;
+        _dbContext = dbContext;
+    }
 
-        public ApplicationUserRepository(ApplicationDbContext dbContext) : base(dbContext)
-        {
-            _dbContext = dbContext;
+    public ApplicationUser GetByUsername(string username)
+    {
+        var user = _dbContext.ApplicationUsers.FirstOrDefault(u => u.UserName == username);
+        return user;
+    }
 
-        }
-
-        public ApplicationUser GetByUsername(string username)
-        {
-            var user = _dbContext.ApplicationUsers.FirstOrDefault(u => u.UserName == username);
-            return user;
-        }
-
-        public void Update(ApplicationUser obj)
-        {
-            _dbContext.ApplicationUsers.Update(obj);
-        }
+    public void Update(ApplicationUser obj)
+    {
+        _dbContext.ApplicationUsers.Update(obj);
     }
 }
