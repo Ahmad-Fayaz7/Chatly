@@ -12,7 +12,7 @@ public class ApplicationUserRepository : Repository<ApplicationUser>, IApplicati
         _dbContext = dbContext;
     }
 
-    public ApplicationUser GetByUsername(string username)
+    public ApplicationUser? GetByUsername(string username)
     {
         var user = _dbContext.ApplicationUsers.FirstOrDefault(u => u.UserName == username);
         return user;

@@ -86,6 +86,9 @@
                             if (button.attr("id") === 'rejectRequestButton') {
                                 // Remove the accept button which is next to the reject button
                                 button.siblings("#acceptRequestButton").remove();
+                            } else if (button.attr("id") === 'acceptRequestButton') {
+                                // Remove the accept button which is next to the reject button
+                                button.siblings("#rejectRequestButton").remove();
                             }
                             button.fadeOut('fast', function () {
                                 button.text(newButtonText)
@@ -93,7 +96,7 @@
                                       .fadeIn('fast');
                             });
                         } else {
-                            alert('Action could not be completed. Please try again.');
+                            alert('Error: ' + response.message);
                         }
                     },
                     error: function (error) {

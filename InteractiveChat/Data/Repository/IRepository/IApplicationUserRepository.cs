@@ -5,5 +5,5 @@ namespace InteractiveChat.Data.Repository.IRepository;
 public interface IApplicationUserRepository : IRepository<ApplicationUser>
 {
     void Update(ApplicationUser obj);
-    ApplicationUser GetByUsername(string username);
+    ApplicationUser? GetByUsername(string username);
 }

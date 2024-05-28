@@ -11,4 +11,5 @@ public interface IFriendshipService
     List<SearchResultViewModel> SearchFriend(ApplicationUser? loggedInUser, string searchTerm);
     Result CancelFriendRequest(ApplicationUser loggedInUser, string username);
     Result RejectFriendRequest(ApplicationUser loggedInUser, string username);
+    Result AcceptFriendRequest(ApplicationUser loggedInUser, string username);
 }

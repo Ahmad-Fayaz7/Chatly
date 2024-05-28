@@ -23,6 +23,7 @@ public class Repository<T> : IRepository<T> where T : class
     public void Add(T entity)
     {
         dbSet.Add(entity);
+        _dbContext.SaveChanges(); 
     }
 
     public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)

@@ -3,17 +3,14 @@ using InteractiveChat.Models;
 
 namespace InteractiveChat.Data.Repository;
 
-public class FriendRequestRepository : Repository<FriendRequest>, IFriendRequestRepository
+public class FriendRequestRepository(ApplicationDbContext dbContext)
+    : Repository<FriendRequest>(dbContext), IFriendRequestRepository
 {
-    private ApplicationDbContext _dbContext;
+    private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public FriendRequestRepository(ApplicationDbContext dbContext) : base(dbContext)
+    public FriendRequest? FindBySenderAndReceiver(string senderId, string receiverId)
     {
-        _dbContext = dbContext;
-    }
-
-    public void Save()
-    {
-        _dbContext.SaveChanges();
+        return _dbContext.FriendRequests
+            .FirstOrDefault(request => request.SenderId == senderId && request.ReceiverId == receiverId );
     }
 }

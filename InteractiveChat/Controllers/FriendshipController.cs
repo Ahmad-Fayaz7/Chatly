@@ -61,4 +61,26 @@ public class FriendshipController : Controller
         var result = _friendshipService.RejectFriendRequest(loggedInUser ,username);
         return Ok(new { success = true, message = "Friend request rejected successfully." });
     }
+
+    public async Task<IActionResult> AcceptFriendRequest(string username)
+    {
+        var loggedInUser = await _userManager.GetUserAsync(User);
+        if (loggedInUser == null)
+        {
+            return Unauthorized(new { success = false, message = "User is not authorized." });
+        }
+
+        if (string.IsNullOrEmpty(username))
+        {
+            return BadRequest(new { success = false, message = "Username cannot be null or empty." });
+        }
+
+        var result = _friendshipService.AcceptFriendRequest(loggedInUser, username);
+        if (result.IsSuccess)
+        {
+            return Ok(new { success = true, message = "Friend request accepted succesfully." });
+        }
+
+        return BadRequest(new { success = false, message = result.ErrorMessage });
+    }
 }
