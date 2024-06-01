@@ -17,5 +17,6 @@ public class ApplicationUser : IdentityUser
     public ICollection<FriendRequest> ReceivedFriendRequests { get; set; }
 
     // Navigation property for friendships
-    public ICollection<Friendship> Friendships { get; set; }
+    public ICollection<Friendship> Friendships { get; set; } // Friendships initiated by this user
+    public ICollection<Friendship> FriendsOf { get; set; } // Friendships where this user is the friend
 }

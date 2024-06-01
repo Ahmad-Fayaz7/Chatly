@@ -7,34 +7,27 @@ public class FriendshipConfiguration : IEntityTypeConfiguration<Friendship>
 {
     public void Configure(EntityTypeBuilder<Friendship> builder)
     {
-        // Configure the Friendship entity
+        // Configure the FriendRequest entity
 
-        // Set table name
+        // Table name
         builder.ToTable("Friendships");
 
-        // Configure primary key
-        builder.HasKey(f => new { f.UserId, f.FriendId });
+        // Primary Key
+        builder.HasKey(fr => new { fr.UserId, fr.FriendId });
 
-        builder.Property(f => f.UserId)
-            .HasColumnOrder(0);
-
-        builder.Property(f => f.FriendId)
-            .HasColumnOrder(1);
-
-        // Configure UserId foreign key
-        builder.HasOne(f => f.User)
+        // Relationships
+        builder.HasOne(fr => fr.User)
             .WithMany(u => u.Friendships)
-            .HasForeignKey(f => f.UserId)
-            .IsRequired();
+            .HasForeignKey(fr => fr.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure FriendId foreign key
-        builder.HasOne(f => f.Friend)
-            .WithMany()
-            .HasForeignKey(f => f.FriendId)
-            .IsRequired();
+        builder.HasOne(fr => fr.Friend)
+            .WithMany(u => u.FriendsOf)
+            .HasForeignKey(fr => fr.FriendId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // Configure friendship date
-        builder.Property(f => f.FriendshipDate)
+        // Additional properties configuration (if any)
+        builder.Property(fr => fr.FriendshipDate)
             .IsRequired();
     }
 }

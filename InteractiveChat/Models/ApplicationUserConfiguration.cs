@@ -23,22 +23,27 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder.Property(u => u.CreationTime)
             .IsRequired();
 
-        //// Configure SentFriendRequests navigation property
-        //builder.HasMany(u => u.SentFriendRequests)
-        //       .WithOne(fr => fr.SenderUser)
-        //       .HasForeignKey(fr => fr.SenderId)
-        //       .IsRequired();
+        /*// Configure SentFriendRequests navigation property
+        builder.HasMany(u => u.SentFriendRequests)
+               .WithOne(fr => fr.SenderUser)
+               .HasForeignKey(fr => fr.SenderId)
+               .IsRequired();
 
-        //// Configure ReceivedFriendRequests navigation property
-        //builder.HasMany(u => u.ReceivedFriendRequests)
-        //       .WithOne(fr => fr.ReceiverUser)
-        //       .HasForeignKey(fr => fr.ReceiverId)
-        //       .IsRequired();
+        // Configure ReceivedFriendRequests navigation property
+        builder.HasMany(u => u.ReceivedFriendRequests)
+               .WithOne(fr => fr.ReceiverUser)
+               .HasForeignKey(fr => fr.ReceiverId)
+               .IsRequired();
 
-        //// Configure Friends navigation property
-        //builder.HasMany(u => u.Friends)
-        //       .WithOne(f => f.User)
-        //       .HasForeignKey(f => f.UserId)
-        //       .IsRequired();
+        // Configure Friendships navigation property
+        builder.HasMany(u => u.Friendships)
+               .WithOne(f => f.User)
+               .HasForeignKey(f => f.UserId)
+               .IsRequired();
+        // Configure FriendsOf navigation property
+        builder.HasMany(u => u.FriendsOf)
+            .WithOne(f => f.Friend)
+            .HasForeignKey(f => f.FriendId)
+            .IsRequired();*/
     }
 }

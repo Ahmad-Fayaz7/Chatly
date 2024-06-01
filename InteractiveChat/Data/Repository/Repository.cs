@@ -15,8 +15,7 @@ public class Repository<T> : IRepository<T> where T : class
     {
         _dbContext = dbContext;
         dbSet = _dbContext
-            .Set<
-                T>(); // Takes the collection of type T and saves it in dbSet, then we can do crud operations on that collection
+            .Set<T>(); // Takes the collection of type T and saves it in dbSet, then we can do crud operations on that collection
     }
 
 
@@ -25,6 +24,8 @@ public class Repository<T> : IRepository<T> where T : class
         dbSet.Add(entity);
         _dbContext.SaveChanges(); 
     }
+
+   
 
     public T Get(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = false)
     {

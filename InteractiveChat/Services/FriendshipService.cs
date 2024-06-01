@@ -31,6 +31,7 @@ public class FriendshipService(
                 .Include(u => u.SentFriendRequests) // Include sent friend requests
                 .Include(u => u.ReceivedFriendRequests) // Include received friend requests
                 .Include(u => u.Friendships) // Include friendships
+                .Include(u => u.FriendsOf) // Include FriendsOf
                 .Where(u => (u.FirstName.ToLower().Contains(searchTerm) || u.LastName.ToLower().Contains(searchTerm)) &&
                             u.Id != loggedInUser.Id) // Exclude the searching user(Logged in user) 
                 .ToList();
@@ -50,7 +51,7 @@ public class FriendshipService(
         if (sender == null || receiver == null) return Result.Error("Sender or receiver not found.");
 
         // Send the friend request...
-        var friendRequest = new FriendRequest { ReceiverId = receiver.Id, SenderId = sender.Id };
+        var friendRequest = new FriendRequest { SenderId = sender.Id ,  ReceiverId = receiver.Id, InvitationDate = DateTime.Now};
         friendRequestRepository.Add(friendRequest);
 
         return Result.Success();
@@ -94,7 +95,7 @@ public class FriendshipService(
             {
                 try
                 {
-                    Friendship friendship = new Friendship() { UserId = loggedInUser.Id, FriendId = sender.Id, FriendshipDate = DateTime.Now};        
+                    Friendship friendship = new Friendship() { UserId = sender.Id, FriendId = loggedInUser.Id, FriendshipDate = DateTime.Now};        
                     friendshipRepository.Add(friendship);
                     friendRequestRepository.Delete(friendRequestToDelete);
                     dbContext.SaveChanges();
@@ -113,6 +114,27 @@ public class FriendshipService(
         {
             return Result.Error("An error occurred while processing your request. Please try again later.");
         }
+    }
+
+    public IEnumerable<ApplicationUser> GetFriendList(ApplicationUser? loggedInUser)
+    {
+        List<ApplicationUser> friends = new List<ApplicationUser>();
+        IEnumerable<Friendship> friendships = friendshipRepository
+            .GetAll();
+        foreach (var friendship in friendships)
+        {
+            Console.WriteLine(friendship.Friend.UserName + " " + friendship.User.UserName);
+            if (friendship.FriendId == loggedInUser.Id)
+            {
+                friends.Add(friendship.User);
+            }
+            else if(friendship.UserId == loggedInUser.Id)
+            {
+                friends.Add(friendship.Friend);
+            }
+        }
+
+        return friends;
     }
 
     public Result RejectFriendRequest(ApplicationUser loggedInUser, string username)
@@ -137,14 +159,15 @@ public class FriendshipService(
             var receivedFriendRequestFromUser =
                 user.ReceivedFriendRequests.FirstOrDefault(fr => fr.SenderId == loggedInUserId);
             var friendshipWithUser =
-                user.Friendships.FirstOrDefault(f => f.UserId == loggedInUserId || f.FriendId == loggedInUserId);
+                user.Friendships.FirstOrDefault(f => f.FriendId == loggedInUserId);
+            var friendsOfUser = user.FriendsOf.FirstOrDefault(f => f.UserId == loggedInUserId);
 
             // Use the retrieved data to determine the relationship status between the searching user and the searched user
             if (sentFriendRequestToUser != null)
                 relationshipStatus = RelationshipStatus.ReceivedRequest;
             else if (receivedFriendRequestFromUser != null)
                 relationshipStatus = RelationshipStatus.PendingRequest;
-            else if (friendshipWithUser != null)
+            else if (friendshipWithUser != null || friendsOfUser != null )
                 relationshipStatus = RelationshipStatus.Accepted;
             else
                 relationshipStatus = RelationshipStatus.None;

@@ -1,25 +1,17 @@
-﻿using InteractiveChat.Models;
+﻿using AutoMapper;
+using InteractiveChat.DTOs;
+using InteractiveChat.Models;
 using InteractiveChat.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InteractiveChat.Controllers;
 
-public class FriendshipController : Controller
+public class FriendshipController(UserManager<ApplicationUser> userManager, IFriendshipService friendshipService, IMapper mapper)
+    : Controller
 {
-    private readonly IFriendshipService _friendshipService;
-    private readonly UserManager<ApplicationUser> _userManager;
-    
-
-    public FriendshipController(UserManager<ApplicationUser> userManager, IFriendshipService friendshipService)
-    {
-        _userManager = userManager;
-        _friendshipService = friendshipService;
-        
-    }
-
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public  IActionResult Index()
     {
         return View();
     }
@@ -27,8 +19,8 @@ public class FriendshipController : Controller
     [HttpPost]
     public async Task<IActionResult> Index(string searchTerm)
     {
-        var loggedInUser = await _userManager.GetUserAsync(User);
-        var searchResults = _friendshipService.SearchFriend(loggedInUser, searchTerm);
+        var loggedInUser = await userManager.GetUserAsync(User);
+        var searchResults = friendshipService.SearchFriend(loggedInUser, searchTerm);
         return View(searchResults);
     }
 
@@ -36,9 +28,9 @@ public class FriendshipController : Controller
     public async Task<IActionResult> SendFriendRequest(string username)
     {
         // Get the sender's username
-        var senderUsername = _userManager.GetUserName(User);
+        var senderUsername = userManager.GetUserName(User);
         // Call the service method to send the friend request
-        var result = await _friendshipService.SendFriendRequest(senderUsername, username);
+        var result = await friendshipService.SendFriendRequest(senderUsername, username);
 
         if (result.IsSuccess) return Ok(new { success = true, message = "Friend request sent successfully." });
 
@@ -48,23 +40,23 @@ public class FriendshipController : Controller
     [HttpPost]
     public async Task<IActionResult> CancelFriendRequest(string username)
     {
-        var loggedInUser = await _userManager.GetUserAsync(User);
+        var loggedInUser = await userManager.GetUserAsync(User);
         // Call the service method to Cancel the friend request
-        var result = _friendshipService.CancelFriendRequest(loggedInUser ,username);
+        var result = friendshipService.CancelFriendRequest(loggedInUser ,username);
         return Ok(new { success = true, message = "Friend request canceled successfully." });
     }
     [HttpPost]
     public async Task<IActionResult> RejectFriendRequest(string username)
     {
-        var loggedInUser = await _userManager.GetUserAsync(User);
+        var loggedInUser = await userManager.GetUserAsync(User);
         // Call the service method to Cancel the friend request
-        var result = _friendshipService.RejectFriendRequest(loggedInUser ,username);
+        var result = friendshipService.RejectFriendRequest(loggedInUser ,username);
         return Ok(new { success = true, message = "Friend request rejected successfully." });
     }
 
     public async Task<IActionResult> AcceptFriendRequest(string username)
     {
-        var loggedInUser = await _userManager.GetUserAsync(User);
+        var loggedInUser = await userManager.GetUserAsync(User);
         if (loggedInUser == null)
         {
             return Unauthorized(new { success = false, message = "User is not authorized." });
@@ -75,12 +67,25 @@ public class FriendshipController : Controller
             return BadRequest(new { success = false, message = "Username cannot be null or empty." });
         }
 
-        var result = _friendshipService.AcceptFriendRequest(loggedInUser, username);
+        var result = friendshipService.AcceptFriendRequest(loggedInUser, username);
         if (result.IsSuccess)
         {
             return Ok(new { success = true, message = "Friend request accepted succesfully." });
         }
 
         return BadRequest(new { success = false, message = result.ErrorMessage });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> FriendList()
+    {
+        var loggedInUser = await userManager.GetUserAsync(User);
+        IEnumerable<ApplicationUser> friendList = friendshipService.GetFriendList(loggedInUser);
+        if (friendList == null)
+        {
+            friendList = new List<ApplicationUser>();
+        }
+        IEnumerable<ApplicationUserDTO> friendListDto = mapper.Map<IEnumerable<ApplicationUserDTO>>(friendList);
+        return View(friendListDto);
     }
 }

@@ -1,0 +1,33 @@
+@model IEnumerable<InteractiveChat.DTOs.ApplicationUserDTO>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Friend List</title>
+    <!-- Include Bootstrap CSS for styling if not already included -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+<div class="container">
+    <h1>Friend List</h1>
+    <ul class="list-group mt-4">
+        @if (Model != null)
+        {
+            foreach (var item in Model)
+            {
+                <li class="list-group-item justify-content-between">
+                    <img src=@item.ProfilePicUrl class="small-images"/>
+                    @(item?.FirstName + " " + item?.LastName)
+                </li>
+            }
+        }
+        else
+        {
+            <li class="list-group-item">No friends found.</li>
+        }
+    </ul>
+</div>
+</body>
+</html>

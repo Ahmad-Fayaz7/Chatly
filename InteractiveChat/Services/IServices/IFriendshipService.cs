@@ -12,4 +12,5 @@ public interface IFriendshipService
     Result CancelFriendRequest(ApplicationUser loggedInUser, string username);
     Result RejectFriendRequest(ApplicationUser loggedInUser, string username);
     Result AcceptFriendRequest(ApplicationUser loggedInUser, string username);
+    IEnumerable<ApplicationUser> GetFriendList(ApplicationUser? loggedInUser);
 }
