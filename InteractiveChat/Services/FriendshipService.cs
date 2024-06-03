@@ -115,7 +115,64 @@ public class FriendshipService(
             return Result.Error("An error occurred while processing your request. Please try again later.");
         }
     }
+    public Result RejectFriendRequest(ApplicationUser loggedInUser, string username)
+    {
+        var sender = applicationUserRepository.GetByUsername(username);
+        var friendRequestToDelete = new FriendRequest { SenderId = sender.Id, ReceiverId = loggedInUser.Id };
+        friendRequestRepository.Delete(friendRequestToDelete);
+        return Result.Success();
+    }
 
+    public Result Unfriend(ApplicationUser? loggedInUser, string username)
+    {
+        
+        if (loggedInUser == null)
+        {
+            return Result.Error("Logged in user cannot be null.");
+        }
+
+        if (string.IsNullOrEmpty(username))
+        {
+            return Result.Error("Username cannot be null or empty.");
+        }
+
+        try
+        {
+            var friend = applicationUserRepository.GetByUsername(username);
+            if (friend == null)
+            {
+                return Result.Error("The specified user does not exists.");
+            }
+
+            var friendshipToDelete = friendshipRepository.GetAll().FirstOrDefault(fr =>
+                (fr.UserId == loggedInUser.Id && fr.FriendId == friend.Id) || (fr.FriendId == loggedInUser.Id && fr.UserId == friend.Id));
+            if (friendshipToDelete == null)
+            {
+                return Result.Error("Friendship does not exist.");
+            }
+
+            using (var transaction = dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    friendshipRepository.Delete(friendshipToDelete);
+                    dbContext.SaveChanges();
+                    transaction.Commit();
+                    return Result.Success();
+                }
+                catch (Exception e)
+                {
+                    transaction.Rollback();
+                    return Result.Error("An error occurred while processing your request. Please try again later.");
+                }
+                
+            }
+        }
+        catch (Exception e)
+        {
+            return Result.Error("An error occurred while processing your request. Please try again later.");
+        }
+    }
     public IEnumerable<ApplicationUser> GetFriendList(ApplicationUser? loggedInUser)
     {
         List<ApplicationUser> friends = new List<ApplicationUser>();
@@ -136,16 +193,7 @@ public class FriendshipService(
 
         return friends;
     }
-
-    public Result RejectFriendRequest(ApplicationUser loggedInUser, string username)
-    {
-        var sender = applicationUserRepository.GetByUsername(username);
-        var friendRequestToDelete = new FriendRequest { SenderId = sender.Id, ReceiverId = loggedInUser.Id };
-        friendRequestRepository.Delete(friendRequestToDelete);
-        return Result.Success();
-    }
-
-
+    
     private List<SearchResultViewModel> CreateSearchResultViewModel(List<ApplicationUser> usersWithRelationships,
         string loggedInUserId)
     {

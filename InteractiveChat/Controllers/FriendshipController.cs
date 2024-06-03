@@ -53,7 +53,7 @@ public class FriendshipController(UserManager<ApplicationUser> userManager, IFri
         var result = friendshipService.RejectFriendRequest(loggedInUser ,username);
         return Ok(new { success = true, message = "Friend request rejected successfully." });
     }
-
+    [HttpPost]
     public async Task<IActionResult> AcceptFriendRequest(string username)
     {
         var loggedInUser = await userManager.GetUserAsync(User);
@@ -71,6 +71,28 @@ public class FriendshipController(UserManager<ApplicationUser> userManager, IFri
         if (result.IsSuccess)
         {
             return Ok(new { success = true, message = "Friend request accepted succesfully." });
+        }
+
+        return BadRequest(new { success = false, message = result.ErrorMessage });
+    }
+    [HttpPost]
+    public async Task<IActionResult> Unfriend(string username)
+    {
+        var loggedInUser = await userManager.GetUserAsync(User);
+        if (loggedInUser == null)
+        {
+            return Unauthorized(new { success = false, message = "User is not authorized." });
+        }
+
+        if (string.IsNullOrEmpty(username))
+        {
+            return BadRequest(new { success = false, message = "Username cannot be null or empty." });
+        }
+
+        var result = friendshipService.Unfriend(loggedInUser, username);
+        if (result.IsSuccess)
+        {
+            return Ok(new { success = true, message = "The operation done successfully." });
         }
 
         return BadRequest(new { success = false, message = result.ErrorMessage });
