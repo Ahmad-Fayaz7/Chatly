@@ -5,109 +5,158 @@ using InteractiveChat.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InteractiveChat.Controllers;
-
-public class FriendshipController(UserManager<ApplicationUser> userManager, IFriendshipService friendshipService, IMapper mapper)
-    : Controller
+namespace InteractiveChat.Controllers
 {
-    [HttpGet]
-    public  IActionResult Index()
+    public class FriendshipController : Controller
     {
-        return View();
-    }
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly IFriendshipService friendshipService;
+        private readonly IMapper mapper;
 
-    [HttpPost]
-    public async Task<IActionResult> Index(string searchTerm)
-    {
-        var loggedInUser = await userManager.GetUserAsync(User);
-        var searchResults = friendshipService.SearchFriend(loggedInUser, searchTerm);
-        return View(searchResults);
-    }
+        public FriendshipController(UserManager<ApplicationUser> userManager, IFriendshipService friendshipService,
+            IMapper mapper)
+        {
+            this.userManager = userManager;
+            this.friendshipService = friendshipService;
+            this.mapper = mapper;
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> SendFriendRequest(string username)
-    {
-        // Get the sender's username
-        var senderUsername = userManager.GetUserName(User);
-        // Call the service method to send the friend request
-        var result = await friendshipService.SendFriendRequest(senderUsername, username);
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-        if (result.IsSuccess) return Ok(new { success = true, message = "Friend request sent successfully." });
+        [HttpPost]
+        public async Task<IActionResult> Index(string searchTerm)
+        {
+            var loggedInUser = await GetLoggedInUserAsync();
+            if (loggedInUser == null)
+                return UnauthorizedResponse();
 
-        return BadRequest(new { success = false, message = "Failed to send friend request." });
-    }
+            if (string.IsNullOrEmpty(searchTerm))
+                return View();
 
-    [HttpPost]
-    public async Task<IActionResult> CancelFriendRequest(string username)
-    {
-        var loggedInUser = await userManager.GetUserAsync(User);
-        // Call the service method to Cancel the friend request
-        var result = friendshipService.CancelFriendRequest(loggedInUser ,username);
-        return Ok(new { success = true, message = "Friend request canceled successfully." });
-    }
-    [HttpPost]
-    public async Task<IActionResult> RejectFriendRequest(string username)
-    {
-        var loggedInUser = await userManager.GetUserAsync(User);
-        // Call the service method to Cancel the friend request
-        var result = friendshipService.RejectFriendRequest(loggedInUser ,username);
-        return Ok(new { success = true, message = "Friend request rejected successfully." });
-    }
-    [HttpPost]
-    public async Task<IActionResult> AcceptFriendRequest(string username)
-    {
-        var loggedInUser = await userManager.GetUserAsync(User);
-        if (loggedInUser == null)
+            var searchResults = friendshipService.SearchFriend(loggedInUser, searchTerm);
+            return View(searchResults);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendFriendRequest(string username)
+        {
+            return await ProcessFriendRequest(username, async (loggedInUser, targetUsername) =>
+            {
+                var result = await friendshipService.SendFriendRequest(loggedInUser.UserName, targetUsername);
+                return result.IsSuccess
+                    ? Ok(new { success = true, message = "Friend request sent successfully." })
+                    : BadRequest(new
+                        { success = false, message = result.ErrorMessage ?? "Failed to send friend request." });
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CancelFriendRequest(string username)
+        {
+            return await ProcessFriendRequest(username, async (loggedInUser, targetUsername) =>
+            {
+                var result = friendshipService.CancelFriendRequest(loggedInUser, targetUsername);
+                return result.IsSuccess
+                    ? Ok(new { success = true, message = "Friend request canceled successfully." })
+                    : BadRequest(new
+                        { success = false, message = result.ErrorMessage ?? "Failed to cancel friend request." });
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RejectFriendRequest(string username)
+        {
+            return await ProcessFriendRequest(username, async (loggedInUser, targetUsername) =>
+            {
+                var result = friendshipService.RejectFriendRequest(loggedInUser, targetUsername);
+                return result.IsSuccess
+                    ? Ok(new { success = true, message = "Friend request rejected successfully." })
+                    : BadRequest(new
+                        { success = false, message = result.ErrorMessage ?? "Failed to reject friend request." });
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptFriendRequest(string username)
+        {
+            return await ProcessFriendRequest(username, async (loggedInUser, targetUsername) =>
+            {
+                var result = friendshipService.AcceptFriendRequest(loggedInUser, targetUsername);
+                return result.IsSuccess
+                    ? Ok(new { success = true, message = "Friend request accepted successfully." })
+                    : BadRequest(new { success = false, message = result.ErrorMessage });
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Unfriend(string username)
+        {
+            return await ProcessFriendRequest(username, async (loggedInUser, targetUsername) =>
+            {
+                var result = friendshipService.Unfriend(loggedInUser, targetUsername);
+                return result.IsSuccess
+                    ? Ok(new { success = true, message = "Unfriended successfully." })
+                    : BadRequest(new { success = false, message = result.ErrorMessage });
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> FriendList()
+        {
+            var loggedInUser = await GetLoggedInUserAsync();
+            if (loggedInUser == null)
+                return UnauthorizedResponse();
+
+            try
+            {
+                var friendList = friendshipService.GetFriendList(loggedInUser);
+                var friendListDto = mapper.Map<IEnumerable<ApplicationUserDTO>>(friendList);
+                return View(friendListDto);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500,
+                    new { success = false, message = "An error occurred while retrieving the friend list." });
+            }
+        }
+
+        private async Task<ApplicationUser?> GetLoggedInUserAsync()
+        {
+            return await userManager.GetUserAsync(User);
+        }
+
+        private IActionResult UnauthorizedResponse()
         {
             return Unauthorized(new { success = false, message = "User is not authorized." });
         }
 
-        if (string.IsNullOrEmpty(username))
+        private async Task<IActionResult> ProcessFriendRequest(string username,
+            Func<ApplicationUser, string, Task<IActionResult>> action)
         {
-            return BadRequest(new { success = false, message = "Username cannot be null or empty." });
-        }
+            if (string.IsNullOrEmpty(username))
+            {
+                return BadRequest(new { success = false, message = "Username cannot be empty." });
+            }
 
-        var result = friendshipService.AcceptFriendRequest(loggedInUser, username);
-        if (result.IsSuccess)
-        {
-            return Ok(new { success = true, message = "Friend request accepted succesfully." });
-        }
+            var loggedInUser = await GetLoggedInUserAsync();
+            if (loggedInUser == null)
+            {
+                return UnauthorizedResponse();
+            }
 
-        return BadRequest(new { success = false, message = result.ErrorMessage });
-    }
-    [HttpPost]
-    public async Task<IActionResult> Unfriend(string username)
-    {
-        var loggedInUser = await userManager.GetUserAsync(User);
-        if (loggedInUser == null)
-        {
-            return Unauthorized(new { success = false, message = "User is not authorized." });
+            try
+            {
+                return await action(loggedInUser, username);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500,
+                    new { success = false, message = "An error occurred while processing the friend request." });
+            }
         }
-
-        if (string.IsNullOrEmpty(username))
-        {
-            return BadRequest(new { success = false, message = "Username cannot be null or empty." });
-        }
-
-        var result = friendshipService.Unfriend(loggedInUser, username);
-        if (result.IsSuccess)
-        {
-            return Ok(new { success = true, message = "The operation done successfully." });
-        }
-
-        return BadRequest(new { success = false, message = result.ErrorMessage });
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> FriendList()
-    {
-        var loggedInUser = await userManager.GetUserAsync(User);
-        IEnumerable<ApplicationUser> friendList = friendshipService.GetFriendList(loggedInUser);
-        if (friendList == null)
-        {
-            friendList = new List<ApplicationUser>();
-        }
-        IEnumerable<ApplicationUserDTO> friendListDto = mapper.Map<IEnumerable<ApplicationUserDTO>>(friendList);
-        return View(friendListDto);
     }
 }
