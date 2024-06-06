@@ -24,45 +24,84 @@ public class FriendshipService(
     public List<SearchResultViewModel> SearchFriend(ApplicationUser? loggedInUser, string searchTerm)
     {
         var searchResultViewModels = new List<SearchResultViewModel>();
-        if (!string.IsNullOrEmpty(searchTerm))
+        if (string.IsNullOrEmpty(searchTerm) || loggedInUser == null)
         {
-            searchTerm = searchTerm.Trim().ToLower();
-            var usersWithRelationships = userManager.Users
-                .Include(u => u.SentFriendRequests) // Include sent friend requests
-                .Include(u => u.ReceivedFriendRequests) // Include received friend requests
-                .Include(u => u.Friendships) // Include friendships
-                .Include(u => u.FriendsOf) // Include FriendsOf
-                .Where(u => (u.FirstName.ToLower().Contains(searchTerm) || u.LastName.ToLower().Contains(searchTerm)) &&
-                            u.Id != loggedInUser.Id) // Exclude the searching user(Logged in user) 
-                .ToList();
-
-            searchResultViewModels = CreateSearchResultViewModel(usersWithRelationships, loggedInUser.Id);
+            return searchResultViewModels;
         }
 
+        searchTerm = searchTerm.Trim().ToLowerInvariant();
+        var searchedUsers = userManager.Users
+            .Include(u => u.SentFriendRequests) // Include sent friend requests
+            .Include(u => u.ReceivedFriendRequests) // Include received friend requests
+            .Include(u => u.Friendships) // Include friendships
+            .Include(u => u.FriendsOf) // Include FriendsOf
+            .Where(u => (u.FirstName.ToLower().Contains(searchTerm) || u.LastName.ToLower().Contains(searchTerm)) &&
+                        u.Id != loggedInUser.Id) // Exclude the searching user(Logged in user) 
+            .ToList();
+
+        searchResultViewModels = CreateSearchResultViewModel(searchedUsers, loggedInUser.Id);
         return searchResultViewModels;
     }
 
     public async Task<Result> SendFriendRequest(string senderUsername, string receiverUsername)
     {
-        // Implement the logic to send a friend request
+        // Validate input parameters
+        if (string.IsNullOrEmpty(senderUsername) || string.IsNullOrEmpty(receiverUsername))
+        {
+            return Result.Error("Sender or receiver username is null or empty.");
+        }
+
+        // Retrieve sender and receiver users asynchronously
         var sender = applicationUserRepository.GetByUsername(senderUsername);
         var receiver = applicationUserRepository.GetByUsername(receiverUsername);
 
-        if (sender == null || receiver == null) return Result.Error("Sender or receiver not found.");
+        // Check if sender or receiver is not found
+        if (sender == null || receiver == null)
+        {
+            return Result.Error("Sender or receiver not found.");
+        }
 
-        // Send the friend request...
-        var friendRequest = new FriendRequest { SenderId = sender.Id ,  ReceiverId = receiver.Id, InvitationDate = DateTime.Now};
-        friendRequestRepository.Add(friendRequest);
+        try
+        {
+            // Create and add friend request
+            var friendRequest = new FriendRequest { SenderId = sender.Id, ReceiverId = receiver.Id, InvitationDate = DateTime.UtcNow };
+            friendRequestRepository.Add(friendRequest);
 
-        return Result.Success();
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            // Log exception or handle error accordingly
+            return Result.Error("An error occurred while sending the friend request.");
+        }
     }
 
-    public Result CancelFriendRequest(ApplicationUser loggedInUser, string username)
+    public Result CancelFriendRequest(ApplicationUser? loggedInUser, string username)
     {
+        // Validate input parameters 
+        if (loggedInUser == null || string.IsNullOrEmpty(username))
+        {
+            return Result.Error("Logged-in user or username is null or empty.");
+        }
+        // Retrieve the receiver user
         var receiver = applicationUserRepository.GetByUsername(username);
-        var friendRequestToDelete = new FriendRequest { SenderId = loggedInUser.Id, ReceiverId = receiver.Id };
-        friendRequestRepository.Delete(friendRequestToDelete);
-        return Result.Success();
+        // Check if the receiver user is not found
+        if (receiver == null)
+        {
+            return Result.Error("Receiver user not found.");
+        }
+
+        try
+        {
+            var friendRequestToDelete = new FriendRequest { SenderId = loggedInUser.Id, ReceiverId = receiver.Id };
+            friendRequestRepository.Delete(friendRequestToDelete);
+            return Result.Success();
+        }
+        catch (Exception e)
+        {
+            return Result.Error("An error occurred while canceling the friend request.");
+        }
+       
     }
 
     public Result AcceptFriendRequest(ApplicationUser? loggedInUser, string username)
@@ -115,12 +154,30 @@ public class FriendshipService(
             return Result.Error("An error occurred while processing your request. Please try again later.");
         }
     }
-    public Result RejectFriendRequest(ApplicationUser loggedInUser, string username)
+    public Result RejectFriendRequest(ApplicationUser? loggedInUser, string username)
     {
+        // Validate input parameters
+        if (loggedInUser == null || string.IsNullOrEmpty(username))
+        {
+            return Result.Error("Logged-in user or username is null or empty.");
+        }
         var sender = applicationUserRepository.GetByUsername(username);
-        var friendRequestToDelete = new FriendRequest { SenderId = sender.Id, ReceiverId = loggedInUser.Id };
-        friendRequestRepository.Delete(friendRequestToDelete);
-        return Result.Success();
+        if (sender == null)
+        {
+            return Result.Error("Sender not found");
+        }
+
+        try
+        {
+            var friendRequestToDelete = new FriendRequest { SenderId = sender.Id, ReceiverId = loggedInUser.Id };
+            friendRequestRepository.Delete(friendRequestToDelete);
+            return Result.Success();
+        }
+        catch (Exception e)
+        {
+            return Result.Error("An error occurred while canceling the friend request.");
+        }
+        
     }
 
     public Result Unfriend(ApplicationUser? loggedInUser, string username)
@@ -151,21 +208,18 @@ public class FriendshipService(
                 return Result.Error("Friendship does not exist.");
             }
 
-            using (var transaction = dbContext.Database.BeginTransaction())
+            using var transaction = dbContext.Database.BeginTransaction();
+            try
             {
-                try
-                {
-                    friendshipRepository.Delete(friendshipToDelete);
-                    dbContext.SaveChanges();
-                    transaction.Commit();
-                    return Result.Success();
-                }
-                catch (Exception e)
-                {
-                    transaction.Rollback();
-                    return Result.Error("An error occurred while processing your request. Please try again later.");
-                }
-                
+                friendshipRepository.Delete(friendshipToDelete);
+                dbContext.SaveChanges();
+                transaction.Commit();
+                return Result.Success();
+            }
+            catch (Exception e)
+            {
+                transaction.Rollback();
+                return Result.Error("An error occurred while processing your request. Please try again later.");
             }
         }
         catch (Exception e)
@@ -175,54 +229,40 @@ public class FriendshipService(
     }
     public IEnumerable<ApplicationUser> GetFriendList(ApplicationUser? loggedInUser)
     {
-        List<ApplicationUser> friends = new List<ApplicationUser>();
         IEnumerable<Friendship> friendships = friendshipRepository
-            .GetAll();
-        foreach (var friendship in friendships)
-        {
-            Console.WriteLine(friendship.Friend.UserName + " " + friendship.User.UserName);
-            if (friendship.FriendId == loggedInUser.Id)
-            {
-                friends.Add(friendship.User);
-            }
-            else if(friendship.UserId == loggedInUser.Id)
-            {
-                friends.Add(friendship.Friend);
-            }
-        }
-
-        return friends;
+            .GetAll()
+            .Where(f => f.UserId == loggedInUser?.Id || f.FriendId == loggedInUser?.Id);
+        var loggedInUserFriends = friendships.Select(f => f.UserId == loggedInUser?.Id ? f.Friend : f.User);
+        return loggedInUserFriends;
     }
     
-    private List<SearchResultViewModel> CreateSearchResultViewModel(List<ApplicationUser> usersWithRelationships,
+    private List<SearchResultViewModel> CreateSearchResultViewModel(List<ApplicationUser> searchedUsers,
         string loggedInUserId)
     {
         var searchResultViewModels = new List<SearchResultViewModel>();
         // Process the search results
-        foreach (var user in usersWithRelationships)
+        foreach (var user in searchedUsers)
         {
-            RelationshipStatus relationshipStatus;
-            // Filter and match friend requests and friendships for the searching user and the searched users
-            var sentFriendRequestToUser = user.SentFriendRequests.FirstOrDefault(fr => fr.ReceiverId == loggedInUserId);
-            var receivedFriendRequestFromUser =
-                user.ReceivedFriendRequests.FirstOrDefault(fr => fr.SenderId == loggedInUserId);
-            var friendshipWithUser =
-                user.Friendships.FirstOrDefault(f => f.FriendId == loggedInUserId);
-            var friendsOfUser = user.FriendsOf.FirstOrDefault(f => f.UserId == loggedInUserId);
-
-            // Use the retrieved data to determine the relationship status between the searching user and the searched user
-            if (sentFriendRequestToUser != null)
-                relationshipStatus = RelationshipStatus.ReceivedRequest;
-            else if (receivedFriendRequestFromUser != null)
-                relationshipStatus = RelationshipStatus.PendingRequest;
-            else if (friendshipWithUser != null || friendsOfUser != null )
-                relationshipStatus = RelationshipStatus.Accepted;
-            else
-                relationshipStatus = RelationshipStatus.None;
-            searchResultViewModels.Add(new SearchResultViewModel
-                { User = user, RelationshipStatus = relationshipStatus });
+            var relationshipStatus = DetermineRelationshipStatus(user, loggedInUserId);
+            searchResultViewModels.Add(new SearchResultViewModel { User = user, RelationshipStatus = relationshipStatus });
         }
 
         return searchResultViewModels;
+    }
+
+    private RelationshipStatus DetermineRelationshipStatus(ApplicationUser user, string loggedInUserId)
+    {
+        var sentFriendRequestToUser = user.SentFriendRequests.FirstOrDefault(fr => fr.ReceiverId == loggedInUserId);
+        var receivedFriendRequestFromUser = user.ReceivedFriendRequests.FirstOrDefault(fr => fr.SenderId == loggedInUserId);
+        var friendshipWithUser = user.Friendships.FirstOrDefault(f => f.FriendId == loggedInUserId);
+        var friendsOfUser = user.FriendsOf.FirstOrDefault(f => f.UserId == loggedInUserId);
+
+        if (sentFriendRequestToUser != null)
+            return RelationshipStatus.ReceivedRequest;
+        if (receivedFriendRequestFromUser != null)
+            return RelationshipStatus.PendingRequest;
+        if (friendshipWithUser != null || friendsOfUser != null)
+            return RelationshipStatus.Accepted;
+        return RelationshipStatus.None;
     }
 }
