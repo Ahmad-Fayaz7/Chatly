@@ -28,6 +28,8 @@ namespace InteractiveChat.Controllers
         }
 
         [HttpPost]
+        [HttpGet]
+        [Route("Friendship/Index")]
         public async Task<IActionResult> Index(string searchTerm)
         {
             var loggedInUser = await GetLoggedInUserAsync();
@@ -121,6 +123,23 @@ namespace InteractiveChat.Controllers
             {
                 return StatusCode(500,
                     new { success = false, message = "An error occurred while retrieving the friend list." });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> FriendRequests()
+        {
+            var loggedInuser = await GetLoggedInUserAsync();
+            if (loggedInuser == null)
+                return Unauthorized();
+            try
+            {
+                var receivedRequests = friendshipService.GetReceivedFriendRequests(loggedInuser.Id);
+                return View(receivedRequests);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500,
+                    new { success = false, message = "An error occurred while retrieving the friend request list." });
             }
         }
 

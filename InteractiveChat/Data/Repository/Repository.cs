@@ -46,11 +46,9 @@ public class Repository<T> : IRepository<T> where T : class
     public void Delete(T entity)
     {
         var obj = dbSet.FirstOrDefault(o => o.Equals(entity));
-        if (obj != null)
-        {
-            dbSet.Remove(obj); // Corrected removal
-            _dbContext.SaveChanges(); // Persist the deletion
-        }
+        if (obj == null) return;
+        dbSet.Remove(obj); // Corrected removal
+        _dbContext.SaveChanges(); // Persist the deletion
     }
 
 }

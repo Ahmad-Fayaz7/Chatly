@@ -1,8 +1,10 @@
-﻿using InteractiveChat.Models;
+﻿using InteractiveChat.DTOs;
+using InteractiveChat.Models;
 
 namespace InteractiveChat.Data.Repository.IRepository;
 
 public interface IFriendRequestRepository : IRepository<FriendRequest>
 {
-    FriendRequest? FindBySenderAndReceiver(string senderId, string receiverId);
+    FriendRequest? GetBySenderAndReceiverIds(string senderId, string receiverId);
+    IEnumerable<FriendRequestDTO> GetByReceiverId(string id);
 }

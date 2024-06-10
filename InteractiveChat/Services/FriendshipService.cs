@@ -1,6 +1,7 @@
 ﻿using InteractiveChat.Data;
 using InteractiveChat.Data.Repository;
 using InteractiveChat.Data.Repository.IRepository;
+using InteractiveChat.DTOs;
 using InteractiveChat.Models;
 using InteractiveChat.Models.ViewModels;
 using InteractiveChat.Services.IServices;
@@ -124,7 +125,7 @@ public class FriendshipService(
                 return Result.Error("The specified user does not exists.");
             }
 
-            var friendRequestToDelete = friendRequestRepository.FindBySenderAndReceiver(sender.Id, loggedInUser.Id);
+            var friendRequestToDelete = friendRequestRepository.GetBySenderAndReceiverIds(sender.Id, loggedInUser.Id);
             if (friendRequestToDelete == null)
             {
                 return Result.Error("Friend request does not exist.");
@@ -235,7 +236,11 @@ public class FriendshipService(
         var loggedInUserFriends = friendships.Select(f => f.UserId == loggedInUser?.Id ? f.Friend : f.User);
         return loggedInUserFriends;
     }
-    
+
+    public IEnumerable<FriendRequestDTO> GetReceivedFriendRequests(string id)
+    {
+        return friendRequestRepository.GetByReceiverId(id);
+    }
     private List<SearchResultViewModel> CreateSearchResultViewModel(List<ApplicationUser> searchedUsers,
         string loggedInUserId)
     {

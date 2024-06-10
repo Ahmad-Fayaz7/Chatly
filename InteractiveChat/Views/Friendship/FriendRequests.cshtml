@@ -1,0 +1,68 @@
+@model IEnumerable<InteractiveChat.DTOs.FriendRequestDTO>
+<ul class="list-group mt-4">
+    @if (Model != null && Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <img src=@item.SenderProfilePicUrl class="small-images" alt="user profile pic"/>
+                @item.SenderFirstName @item.SenderLastName
+                <button class="btn btn-primary friendActionButton" id="acceptRequestButton" data-username="@item.SenderUserName">Accept</button>
+                <button class="btn btn-primary friendActionButton" id="rejectRequestButton" data-username="@item.SenderUserName">Reject</button>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="list-group-item">
+            <h1>You have no friends.</h1>
+        </li>
+    }
+</ul>
+
+
+@section Scripts {
+    <script>
+    $(document).ready(function () {
+        $(".friendActionButton").click(function (e) {
+            e.preventDefault();
+
+            const button = $(this); // Store the clicked button
+            const username = button.data("username"); // Get the username from the button's data attribute
+            let actionUrl = '';
+            if (button.attr("id") === 'acceptRequestButton') {
+                actionUrl = '@Url.Action("AcceptFriendRequest", "Friendship")';
+            }
+            else if (button.attr("id") === 'rejectRequestButton') {
+                actionUrl = '@Url.Action("RejectFriendRequest", "Friendship")';
+            }
+
+            $.ajax({
+                url: actionUrl,
+                type: 'POST',
+                data: { username: username }, // Include the username in the data sent to the server
+                success: function (response) {
+                    // Handle success - update the UI
+                    if (response.success) {
+                     if (button.attr("id") === 'acceptRequestButton') {
+                         alert("Accepted successfully!");
+                        }
+                            // Check if the button is a reject button
+                     else if (button.attr("id") === 'rejectRequestButton') {
+                         alert("Rejected successfully!");
+                        } 
+                       
+                        button.parent('li').remove();
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function (error) {
+                    // Handle error - notify the user
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+}

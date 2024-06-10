@@ -1,33 +1,52 @@
 @model IEnumerable<InteractiveChat.DTOs.ApplicationUserDTO>
+<ul class="list-group mt-4">
+    @if (Model != null && Model.Any()) 
+    {
+        foreach (var item in Model)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <img src=@item.ProfilePicUrl class="small-images" alt="user profile pic"/>
+                @item.FirstName @item.LastName
+                <button class="btn btn-primary friendActionButton" data-username="@item.UserName">Unfriend</button>
+            </li>
+        }
+    }
+    else
+    {
+        <li class="list-group-item"><h1>You have no friends.</h1></li>
+    }
+</ul>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Friend List</title>
-    <!-- Include Bootstrap CSS for styling if not already included -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
-</head>
-<body>
-<div class="container">
-    <h1>Friend List</h1>
-    <ul class="list-group mt-4">
-        @if (Model != null)
-        {
-            foreach (var item in Model)
-            {
-                <li class="list-group-item justify-content-between">
-                    <img src=@item.ProfilePicUrl class="small-images"/>
-                    @(item?.FirstName + " " + item?.LastName)
-                </li>
-            }
-        }
-        else
-        {
-            <li class="list-group-item">No friends found.</li>
-        }
-    </ul>
-</div>
-</body>
-</html>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $(".friendActionButton").click(function (e) {
+                e.preventDefault();
+                
+                const button = $(this); // Store the clicked button
+                const username = button.data("username"); // Get the username from the button's data attribute
+                let actionUrl = '@Url.Action("Unfriend", "Friendship")';
+
+                $.ajax({
+                    url: actionUrl,
+                    type: 'POST',
+                    data: { username: username }, // Include the username in the data sent to the server
+                    success: function (response) {
+                        // Handle success - update the UI
+                        if (response.success) {
+                            alert("Unfriend successfully!");
+                            button.parent('li').remove();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function (error) {
+                        // Handle error - notify the user
+                        alert('An error occurred. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+}

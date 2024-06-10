@@ -1,4 +1,5 @@
-﻿using InteractiveChat.Models;
+﻿using InteractiveChat.DTOs;
+using InteractiveChat.Models;
 using InteractiveChat.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,4 +14,5 @@ public interface IFriendshipService
     Result AcceptFriendRequest(ApplicationUser loggedInUser, string username);
     Result Unfriend(ApplicationUser loggedInUser, string username);
     IEnumerable<ApplicationUser> GetFriendList(ApplicationUser? loggedInUser);
+    IEnumerable<FriendRequestDTO> GetReceivedFriendRequests(string loggedInuserId);
 }

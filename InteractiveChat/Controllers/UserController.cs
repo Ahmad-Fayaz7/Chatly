@@ -48,22 +48,20 @@ public class UserController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ApplicationUserDTO applicationUserDto)
     {
-        if (ModelState.IsValid)
-        {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            if (user == null) return NotFound();
+        if (!ModelState.IsValid) return View(applicationUserDto);
+        var user = await _userManager.GetUserAsync(HttpContext.User);
+        if (user == null) return NotFound();
 
-            // Update only the necessary properties
-            user.FirstName = applicationUserDto.FirstName;
-            user.LastName = applicationUserDto.LastName;
+        // Update only the necessary properties
+        user.FirstName = applicationUserDto.FirstName;
+        user.LastName = applicationUserDto.LastName;
 
-            // Handle the profile picture
-            if (applicationUserDto.ProfilePicUrl != null)
-                user.ProfilePicUrl = SaveProfilePicAsync(applicationUserDto.ProfilePicUrl);
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded) return RedirectToAction("Index", "Home");
-            foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error.Description);
-        }
+        // Handle the profile picture
+        if (applicationUserDto.ProfilePicUrl != null)
+            user.ProfilePicUrl = SaveProfilePicAsync(applicationUserDto.ProfilePicUrl);
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded) return RedirectToAction("Index", "Home");
+        foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error.Description);
 
         return View(applicationUserDto);
     }
