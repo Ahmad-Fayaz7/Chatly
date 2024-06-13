@@ -1,7 +1,7 @@
 ﻿@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Registrarse";
     Layout = "~/Views/Shared/_BeforeLoginLayout.cshtml";
 }
 
@@ -10,43 +10,43 @@
 
     <div class="col-md-6 mx-auto p-3 mt-4 border">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
-            <h2>Create a new account.</h2>
+            <h2>Crea una cuenta nueva.</h2>
             <hr/>
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.FirstName" class="form-control" placeholder="First Name"/>
-                <label asp-for="Input.FirstName">First Name</label>
+                <label asp-for="Input.FirstName">Nombre</label>
                 <span asp-validation-for="Input.FirstName" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.LastName" class="form-control" placeholder="Last Name"/>
-                <label asp-for="Input.LastName">Last Name</label>
+                <label asp-for="Input.LastName">Apellidos</label>
                 <span asp-validation-for="Input.FirstName" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com"/>
-                <label asp-for="Input.Email">Email</label>
+                <label asp-for="Input.Email">Correo electrónico</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password"/>
-                <label asp-for="Input.Password">Password</label>
+                <label asp-for="Input.Password">Contraseña</label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password"/>
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                <label asp-for="Input.ConfirmPassword">Confirmar contraseña</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
             <div class="form-group my-3">
-                <label for="ProfilePicUrl">Choose a profile picture</label>
+                <label for="ProfilePicUrl">Elige una foto de perfil</label>
                 <input type="file" id="ProfilePicUrl" name="ProfilePicUrl" class="form-control"/>
             </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary mb-3">Register</button>
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary mb-3">Registrarse</button>
             <div>
                 <p>
-                    Already have an account?
-                    <a id="login" asp-page="./Login">Log in</a>
+                    ¿Ya tienes una cuenta?
+                    <a id="login" asp-page="./Login">Iniciar sesión</a>
                 </p>
             </div>
         </form>

@@ -1,9 +1,12 @@
 ﻿@model ApplicationUser
 
-<div>
+<div class="d-none d-sm-inline">
     <img src="@Model.ProfilePicUrl" class="profile-pic"/>
     <div class="d-block mx-3">
         <span>@Model.FirstName @Model.LastName</span> <br/>
         @* <span>Description</span> *@
     </div>
+</div>
+<div class="d-inline d-sm-none">
+    <img src="@Model.ProfilePicUrl" alt="profile" width="30" height="30" class="small-images m-2">
 </div>

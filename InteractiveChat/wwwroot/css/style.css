@@ -4,7 +4,7 @@
 .profile-pic {
     width: 90px;
     height: 90px;
-    border: 2px solid salmon;
+    border: 2px solid #f3969a;
     padding: 3px;
     border-radius: 50%;
     object-fit: cover;

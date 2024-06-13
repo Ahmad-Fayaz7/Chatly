@@ -7,13 +7,13 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <img src=@item.ProfilePicUrl class="small-images" alt="user profile pic"/>
                 @item.FirstName @item.LastName
-                <button class="btn btn-primary friendActionButton" data-username="@item.UserName">Unfriend</button>
+                <button class="btn btn-primary friendActionButton" data-username="@item.UserName">Eliminar</button>
             </li>
         }
     }
     else
     {
-        <li class="list-group-item"><h1>You have no friends.</h1></li>
+        <li class="list-group-item"><h1>No tiene amigos.</h1></li>
     }
 </ul>
 

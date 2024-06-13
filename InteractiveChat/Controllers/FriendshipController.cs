@@ -22,28 +22,29 @@ namespace InteractiveChat.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        [Route("Friendship/SearchFriendPage")]
+        public IActionResult SearchFriendPage()
         {
             return View();
         }
 
         [HttpPost]
-        [HttpGet]
-        [Route("Friendship/Index")]
-        public async Task<IActionResult> Index(string searchTerm)
+        [Route("Friendship/SearchFriend")]
+        public async Task<IActionResult> SearchFriend(string searchTerm)
         {
             var loggedInUser = await GetLoggedInUserAsync();
             if (loggedInUser == null)
                 return UnauthorizedResponse();
 
             if (string.IsNullOrEmpty(searchTerm))
-                return View();
+                return View("SearchFriendPage");
 
             var searchResults = friendshipService.SearchFriend(loggedInUser, searchTerm);
-            return View(searchResults);
+            return View("SearchFriendPage",searchResults);
         }
 
         [HttpPost]
+        [Route("Friendship/SendFriendRequest")]
         public async Task<IActionResult> SendFriendRequest(string username)
         {
             return await ProcessFriendRequest(username, async (loggedInUser, targetUsername) =>
@@ -57,6 +58,7 @@ namespace InteractiveChat.Controllers
         }
 
         [HttpPost]
+        [Route("Friendship/CancelFriendRequest")]
         public async Task<IActionResult> CancelFriendRequest(string username)
         {
             return await ProcessFriendRequest(username, async (loggedInUser, targetUsername) =>

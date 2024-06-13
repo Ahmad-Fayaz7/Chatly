@@ -93,7 +93,9 @@ public class UserController : Controller
         }
         else
         {
-            uniqueFileName = "profile-placeholder.png";
+            // uniqueFileName = "profile-placeholder.png";
+            string trimmedPath = userProfilePic.Replace(@"\images\users\", string.Empty);
+            uniqueFileName = trimmedPath;
         }
 
         // Save file path to database/users table
