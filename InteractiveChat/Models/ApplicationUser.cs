@@ -19,4 +19,8 @@ public class ApplicationUser : IdentityUser
     // Navigation property for friendships
     public ICollection<Friendship> Friendships { get; set; } // Friendships initiated by this user
     public ICollection<Friendship> FriendsOf { get; set; } // Friendships where this user is the friend
+    // Navigation properties
+    public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
+    public virtual ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();
+    public virtual ICollection<Conversation> Conversations { get; set; } = new List<Conversation>();
 }

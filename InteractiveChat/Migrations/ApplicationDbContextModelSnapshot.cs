@@ -22,6 +22,21 @@ namespace InteractiveChat.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("ApplicationUserConversation", b =>
+                {
+                    b.Property<long>("ConversationsConversationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ParticipantsId")
+                        .HasColumnType("varchar(255)");
+
+                    b.HasKey("ConversationsConversationId", "ParticipantsId");
+
+                    b.HasIndex("ParticipantsId");
+
+                    b.ToTable("ConversationParticipants", (string)null);
+                });
+
             modelBuilder.Entity("InteractiveChat.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -100,6 +115,33 @@ namespace InteractiveChat.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("InteractiveChat.Models.Conversation", b =>
+                {
+                    b.Property<long>("ConversationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("ConversationId"));
+
+                    b.Property<DateTime>("CreatedTimestamp")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("LastUpdatedTimestamp")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("ConversationId");
+
+                    b.ToTable("Conversations", (string)null);
+                });
+
             modelBuilder.Entity("InteractiveChat.Models.FriendRequest", b =>
                 {
                     b.Property<string>("SenderId")
@@ -121,12 +163,10 @@ namespace InteractiveChat.Migrations
             modelBuilder.Entity("InteractiveChat.Models.Friendship", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("varchar(255)")
-                        .HasColumnOrder(0);
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("FriendId")
-                        .HasColumnType("varchar(255)")
-                        .HasColumnOrder(1);
+                        .HasColumnType("varchar(255)");
 
                     b.Property<DateTime>("FriendshipDate")
                         .HasColumnType("datetime(6)");
@@ -136,6 +176,65 @@ namespace InteractiveChat.Migrations
                     b.HasIndex("FriendId");
 
                     b.ToTable("Friendships", (string)null);
+                });
+
+            modelBuilder.Entity("InteractiveChat.Models.Message", b =>
+                {
+                    b.Property<long>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("MessageId"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("ConversationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<TimeSpan?>("Duration")
+                        .HasColumnType("time(6)");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MediaUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("MessageType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RecipientId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("ConversationId");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -270,6 +369,21 @@ namespace InteractiveChat.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ApplicationUserConversation", b =>
+                {
+                    b.HasOne("InteractiveChat.Models.Conversation", null)
+                        .WithMany()
+                        .HasForeignKey("ConversationsConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InteractiveChat.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("ParticipantsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("InteractiveChat.Models.FriendRequest", b =>
                 {
                     b.HasOne("InteractiveChat.Models.ApplicationUser", "ReceiverUser")
@@ -292,20 +406,50 @@ namespace InteractiveChat.Migrations
             modelBuilder.Entity("InteractiveChat.Models.Friendship", b =>
                 {
                     b.HasOne("InteractiveChat.Models.ApplicationUser", "Friend")
-                        .WithMany()
+                        .WithMany("FriendsOf")
                         .HasForeignKey("FriendId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("InteractiveChat.Models.ApplicationUser", "User")
                         .WithMany("Friendships")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Friend");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("InteractiveChat.Models.Message", b =>
+                {
+                    b.HasOne("InteractiveChat.Models.Conversation", "Conversation")
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Messages_ConversationId");
+
+                    b.HasOne("InteractiveChat.Models.ApplicationUser", "Recipient")
+                        .WithMany("ReceivedMessages")
+                        .HasForeignKey("RecipientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Messages_RecipientId");
+
+                    b.HasOne("InteractiveChat.Models.ApplicationUser", "Sender")
+                        .WithMany("SentMessages")
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Messages_SenderId");
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -361,11 +505,22 @@ namespace InteractiveChat.Migrations
 
             modelBuilder.Entity("InteractiveChat.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("FriendsOf");
+
                     b.Navigation("Friendships");
 
                     b.Navigation("ReceivedFriendRequests");
 
+                    b.Navigation("ReceivedMessages");
+
                     b.Navigation("SentFriendRequests");
+
+                    b.Navigation("SentMessages");
+                });
+
+            modelBuilder.Entity("InteractiveChat.Models.Conversation", b =>
+                {
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }
