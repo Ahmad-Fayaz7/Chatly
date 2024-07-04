@@ -1,0 +1,31 @@
+@model IEnumerable<InteractiveChat.DTOs.ConversationDto>
+
+<ul class="list-group conversation-list">
+    @if (!@Model.Any())
+    {
+        <li class="list-group-item">No tiene conversaciones.</li>
+    }
+    else
+    {
+        @foreach (var conversation in Model)
+        {
+            <li class="list-group-item ">
+                <a class="text-decoration-none text-dark d-flex" asp-controller="Message" asp-action="Chat" asp-route-recipient="@conversation.Participants.FirstOrDefault()?.UserName">
+                    <img src="@conversation.Participants.FirstOrDefault()?.ProfilePicUrl" class="small-images flex-shrink-0"/>
+                    <div class="mx-3 flex-grow-1 text-truncate">
+                        <div class="d-flex justify-content-between">
+                            <strong>
+                                @conversation.Participants.FirstOrDefault()?.FirstName
+                            </strong>
+                            @conversation.Messages.Last()?.FormattedTimestamp
+                        </div>
+                        <span class="text-muted " dir="auto">
+                            @conversation.Messages.Last()?.Content
+                        </span>
+                    </div>
+                </a>
+            </li>
+        }
+    }
+
+</ul>

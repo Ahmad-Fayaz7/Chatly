@@ -1,0 +1,30 @@
+@model ApplicationUser?[]
+
+<div id="chat-container">
+    <div id="chat-header">
+        <img src="@Model[1]?.ProfilePicUrl" class="small-images" alt="user profile pic"/>
+        @Model[1]?.FirstName
+    </div>
+    <div id="chat-body">
+        <!-- Messages will go here -->
+        <div>
+            <img src="../../images/users/background.jpg" id="chat-background"/>
+        </div>
+        <div id="chat-messages">
+            
+        </div>
+    </div>
+    <div id="chat-input">
+        <input type="text" id="username-input" hidden="hidden" value="@Model[0]?.UserName" />
+        <input type="text" id="recipient-user" hidden="hidden" value="@Model[1]?.UserName" />
+        <input type="text" id="message-input" placeholder="Type a message..." />
+        <button onclick="sendMessage()" class="btn btn-secondary" id="send-btn">Send</button>
+    </div>
+</div>
+@section Scripts
+{
+    <script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/signalr-connection.js"></script>
+    <script src="~/js/load-conversation.js"></script>
+    <script src="~/js/send-message.js"></script>
+}

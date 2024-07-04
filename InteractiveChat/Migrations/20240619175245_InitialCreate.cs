@@ -83,10 +83,10 @@ namespace InteractiveChat.Migrations
                     ConversationId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     CreatedTimestamp = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    LastUpdatedTimestamp = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Title = table.Column<string>(type: "longtext", nullable: false)
+                    LastUpdatedTimestamp = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Title = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Status = table.Column<string>(type: "longtext", nullable: false)
+                    Status = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -318,15 +318,15 @@ namespace InteractiveChat.Migrations
                     Content = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Timestamp = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    Status = table.Column<string>(type: "longtext", nullable: false)
+                    Status = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    MessageType = table.Column<string>(type: "longtext", nullable: false)
+                    MessageType = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    MediaUrl = table.Column<string>(type: "longtext", nullable: false)
+                    MediaUrl = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     FileSize = table.Column<long>(type: "bigint", nullable: true),
                     Duration = table.Column<TimeSpan>(type: "time(6)", nullable: true),
-                    ThumbnailUrl = table.Column<string>(type: "longtext", nullable: false)
+                    ThumbnailUrl = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>

@@ -126,15 +126,13 @@ namespace InteractiveChat.Migrations
                     b.Property<DateTime>("CreatedTimestamp")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("LastUpdatedTimestamp")
+                    b.Property<DateTime?>("LastUpdatedTimestamp")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("ConversationId");
@@ -200,11 +198,9 @@ namespace InteractiveChat.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("MediaUrl")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("MessageType")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("RecipientId")
@@ -216,11 +212,9 @@ namespace InteractiveChat.Migrations
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("ThumbnailUrl")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("Timestamp")

@@ -1,5 +1,5 @@
 @model IEnumerable<InteractiveChat.DTOs.FriendRequestDTO>
-<ul class="list-group mt-4">
+<ul class="list-group mt-4 px-2">
     @if (Model != null && Model.Any())
     {
         foreach (var item in Model)
@@ -28,5 +28,5 @@
             rejectFriendRequest: '@Url.Action("RejectFriendRequest", "Friendship")'
         };
     </script>
-    <script src="~/js/friendrequestActions.js"></script>
+    <script src="~/js/friendrequest-actions.js"></script>
 }

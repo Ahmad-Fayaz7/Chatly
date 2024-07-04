@@ -4,13 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InteractiveChat.Data.Repository;
 
-public class FriendshipRepository : Repository<Friendship>, IFriendshipRepository
+public class FriendshipRepository(ApplicationDbContext dbContext)
+    : Repository<Friendship>(dbContext), IFriendshipRepository
 {
-    public readonly ApplicationDbContext _dbContext;
-    public FriendshipRepository(ApplicationDbContext dbContext) : base(dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    public readonly ApplicationDbContext _dbContext = dbContext;
 
 
     public IEnumerable<Friendship> GetAll()

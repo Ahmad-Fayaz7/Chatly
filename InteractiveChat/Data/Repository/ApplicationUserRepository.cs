@@ -3,14 +3,10 @@ using InteractiveChat.Models;
 
 namespace InteractiveChat.Data.Repository;
 
-public class ApplicationUserRepository : Repository<ApplicationUser>, IApplicationUserRepository
+public class ApplicationUserRepository(ApplicationDbContext dbContext)
+    : Repository<ApplicationUser>(dbContext), IApplicationUserRepository
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public ApplicationUserRepository(ApplicationDbContext dbContext) : base(dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    private readonly ApplicationDbContext _dbContext = dbContext;
 
     public ApplicationUser? GetByUsername(string username)
     {
